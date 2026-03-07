@@ -1,0 +1,78 @@
+name: review.skill.knowledge
+version: 1.0.0
+status: experimental
+skill_type: executable
+
+description: >
+  Content quality reviewer for knowledge-type skills. Evaluates source
+  authority, freshness strategy, correctness, and scope. Structural checks
+  are handled by review.skill.definition.
+
+owner: kyson
+side_effects: none
+
+inputs:
+  mode:
+    type: string
+    required: false
+    default: ci
+    enum: [ci, interactive]
+  skill_name:
+    type: string
+    required: true
+  skill_type:
+    type: string
+    required: false
+    default: ""
+    description: "executable | knowledge | orchestrator"
+  skill_yaml:
+    type: string
+    required: true
+  prompt_md:
+    type: string
+    required: true
+  skill_md:
+    type: string
+    required: true
+
+outputs:
+  review_json:
+    type: object
+
+rubric:
+  total_score: 100
+  scoring_criteria:
+    source_authority:
+      weight: 30
+      description: "Are claims backed by verifiable sources? No hallucinated authority."
+    freshness_strategy:
+      weight: 25
+      description: "Volatile data not hardcoded; update or fetch strategy exists."
+    correctness:
+      weight: 25
+      description: "No internal contradictions, overconfident claims, or factual errors."
+    scope:
+      weight: 20
+      description: "Knowledge is tightly scoped; no off-topic drift or encyclopedia tendency."
+
+verdict_rules:
+  pass: { min_score: 85 }
+  revise: { min_score: 60 }
+  reject: { below: 60 }
+
+output_contract:
+  required_fields:
+    - score
+    - verdict
+    - risk_level
+    - dimension_scores
+    - issues
+    - suggestions
+    - recommended_changes
+  verdict_enum: [pass, revise, reject]
+  risk_level_enum: [low, medium, high]
+  issue_fields: [dimension_id, severity, file, evidence, fix_hint]
+  severity_enum: [low, medium, high, critical]
+  suggestion_fields: [dimension_id, priority, file, action, expected_change]
+  priority_enum: [p0, p1, p2]
+  recommended_changes_fields: [skill_yaml_patch, prompt_patch, skill_md_patch]

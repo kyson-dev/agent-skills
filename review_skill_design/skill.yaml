@@ -1,0 +1,96 @@
+name: review.skill.design
+version: 1.0.0
+status: experimental
+skill_type: executable
+
+description: >
+  Design-level reviewer for skills. Evaluates feasibility, value proposition,
+  scope, safety, and evolution path. Provides pass/revise/reject verdicts
+  for gating, alongside structured advisory recommendations.
+
+owner: kyson
+side_effects: none
+
+inputs:
+  mode:
+    type: string
+    required: false
+    default: interactive
+    enum: [ci, interactive]
+  skill_name:
+    type: string
+    required: true
+  skill_type:
+    type: string
+    required: false
+    default: ""
+    description: "executable | knowledge | orchestrator"
+  skill_yaml:
+    type: string
+    required: true
+  prompt_md:
+    type: string
+    required: true
+  skill_md:
+    type: string
+    required: true
+  existing_skills_list:
+    type: list
+    required: false
+    default: []
+    description: >
+      Optional local skills index. If empty, auto-discover from ~/.agents/skills.
+
+outputs:
+  review_json:
+    type: object
+
+config:
+  min_alternatives_when_triggered: 2
+  min_alternatives_default: 1
+  allowed_recommendations: [keep, split, merge, drop, simplify]
+
+rubric:
+  total_score: 100
+  scoring_criteria:
+    value_proposition:
+      weight: 30
+      description: "Clear job-to-be-done, sufficient ROI and usage frequency"
+    scope_design:
+      weight: 30
+      description: "Single responsibility, right granularity, no significant overlap"
+    buildability:
+      weight: 25
+      description: "Testable, incrementally buildable, well-designed interface"
+    risk_safety:
+      weight: 15
+      description: "Safe defaults, failure modes identified, misuse resistance"
+
+verdict_rules:
+  pass: { min_score: 85 }
+  revise: { min_score: 60 }
+  reject: { below: 60 }
+
+output_contract:
+  required_fields:
+    - score
+    - verdict
+    - recommendation
+    - feasibility
+    - early_exit
+    - dimension_scores
+    - alternative_analysis_triggered
+    - alternative_analysis_trigger_reasons
+    - option_analysis
+    - issues
+    - suggestions
+  verdict_enum: [pass, revise, reject]
+  recommendation_enum: [keep, split, merge, drop, simplify]
+  feasibility_fields: [status, rationale, blocking_issues]
+  feasibility_status_enum: [feasible, not_feasible]
+  issue_fields: [dimension_id, severity, evidence, fix_hint]
+  severity_enum: [low, medium, high, critical]
+  suggestion_fields: [dimension_id, priority, action, expected_change]
+  priority_enum: [p0, p1, p2]
+  option_fields:
+    [option_id, is_current, summary, benefits, costs, risks, complexity]

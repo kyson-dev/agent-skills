@@ -1,0 +1,85 @@
+name: review.skill.workflow
+version: 1.0.0
+status: experimental
+skill_type: orchestrator
+
+description: >
+  Orchestrator for new-skill review. Runs definition → knowledge (conditional)
+  → design → tester in sequence, gating on each verdict.
+
+owner: kyson
+side_effects: none
+
+inputs:
+  mode:
+    type: string
+    required: false
+    default: interactive
+    enum: [ci, interactive]
+  skill_name:
+    type: string
+    required: true
+  skill_type:
+    type: string
+    required: false
+    default: ""
+    description: "executable | knowledge | orchestrator; inferred from skill_yaml if empty"
+  skill_yaml:
+    type: string
+    required: true
+  prompt_md:
+    type: string
+    required: true
+  skill_md:
+    type: string
+    required: true
+  existing_skills_list:
+    type: list
+    required: false
+    default: []
+    description: >
+      Optional local skills index. If empty, auto-discover from ~/.agents/skills.
+
+outputs:
+  workflow_result:
+    type: object
+
+config:
+  auto_discover_existing_skills: true
+  infer_skill_type_if_empty: true
+
+pipeline:
+  - id: definition
+    reviewer: review.skill.definition
+    decision_field: verdict
+    stop_on: [reject, revise]
+    output_as: definition_result
+  - id: knowledge_content
+    reviewer: review.skill.knowledge
+    decision_field: verdict
+    stop_on: [reject, revise]
+    when_skill_type: knowledge
+    output_as: knowledge_result
+  - id: design
+    reviewer: review.skill.design
+    decision_field: verdict
+    stop_on: [reject, revise]
+    output_as: design_result
+  - id: tester
+    reviewer: review.skill.tester
+    decision_field: verdict
+    stop_on: [reject, revise]
+    output_as: tester_result
+
+output_contract:
+  required_fields:
+    - skill_name
+    - skill_type
+    - definition_result
+    - knowledge_result
+    - design_result
+    - tester_result
+    - final_decision
+    - decision_trace
+    - summary
+  final_decision_enum: [pass, revise, reject]

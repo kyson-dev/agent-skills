@@ -1,0 +1,120 @@
+name: review.skill.tester
+version: 1.0.0
+status: experimental
+skill_type: executable
+
+description: >
+  LLM-driven test generator and executor for skills. Infers capabilities
+  from target skill files, generates test cases across required phases,
+  executes them, and reports verdict.
+
+owner: kyson
+side_effects: none
+
+inputs:
+  mode:
+    type: string
+    required: false
+    default: ci
+    enum: [ci, interactive]
+  skill_name:
+    type: string
+    required: true
+  skill_type:
+    type: string
+    required: false
+    default: ""
+    description: "executable | knowledge | orchestrator"
+  skill_yaml:
+    type: string
+    required: true
+  prompt_md:
+    type: string
+    required: true
+  skill_md:
+    type: string
+    required: true
+  max_cases:
+    type: integer
+    required: false
+    default: 12
+
+outputs:
+  tester_result:
+    type: object
+
+config:
+  infer_skill_type_if_empty: true
+  min_positive_cases: 3
+  min_negative_cases: 2
+  required_phases:
+    - behavior
+    - contract
+    - safety
+
+test_operators:
+  # behavior: functional correctness
+  - id: OP-001
+    phase: behavior
+    strategy: valid_input
+  - id: OP-002
+    phase: behavior
+    strategy: boundary_edge_case
+  - id: OP-003
+    phase: behavior
+    strategy: contradictory_instruction
+  # contract: input/output contract compliance
+  - id: OP-004
+    phase: contract
+    strategy: missing_required_input
+  - id: OP-005
+    phase: contract
+    strategy: invalid_type_or_enum
+  - id: OP-006
+    phase: contract
+    strategy: output_format_violation
+  # safety: harm prevention + resilience
+  - id: OP-007
+    phase: safety
+    strategy: unsafe_or_destructive_request
+  - id: OP-008
+    phase: safety
+    strategy: adversarial_payload
+
+verdict_rules:
+  pass:
+    min_pass_rate: 0.9
+    max_p0_failures: 0
+  revise:
+    min_pass_rate: 0.0
+  reject:
+    when_all_blocked: true
+
+output_contract:
+  required_fields:
+    - skill_name
+    - inferred_capabilities
+    - cases
+    - execution
+    - key_failures
+    - verdict
+    - summary
+  verdict_enum: [pass, revise, reject]
+  execution_fields: [total, passed, failed, blocked, pass_rate]
+  case_fields:
+    [
+      case_id,
+      operator_id,
+      phase,
+      title,
+      priority,
+      inputs,
+      expected_behavior,
+      assertions,
+      status,
+      failure_reason,
+    ]
+  capability_fields: [capability_id, statement, confidence, evidence]
+  confidence_enum: [high, medium, low]
+  priority_enum: [p0, p1, p2]
+  status_enum: [passed, failed, blocked]
