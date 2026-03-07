@@ -1,0 +1,92 @@
+name: git.status
+version: 1.0.0
+status: experimental
+skill_type: executable
+
+description: >
+  Read-only git repository state inspector. Produces a normalized snapshot
+  of branch/upstream state, file buckets, in-progress operations, and
+  prioritized next actions.
+
+owner: kyson
+side_effects: none
+default_mode: full
+
+inputs:
+  mode:
+    type: string
+    required: false
+    default: full
+    enum: [brief, full]
+    description: >
+      brief: include counts and capped file lists.
+      full: include full details up to configured caps.
+  include_untracked:
+    type: boolean
+    required: false
+    default: true
+    description: "Whether to include untracked files in counts and file buckets."
+  max_files_per_bucket:
+    type: integer
+    required: false
+    default: 50
+    description: "Upper cap per file bucket in output."
+
+outputs:
+  status_result:
+    type: object
+
+config:
+  max_files_per_bucket_limit: 200
+  brief_mode_bucket_cap: 20
+  detect_in_progress_states: true
+  include_ignored_files: false
+
+status_rules:
+  not_repo:
+    when_not_inside_work_tree: true
+  conflicted:
+    when_conflicted_files_gt: 0
+  dirty:
+    when_total_changes_gt: 0
+  clean:
+    when_total_changes_eq: 0
+
+risk_rules:
+  - id: detached_head
+    severity: high
+  - id: merge_in_progress
+    severity: high
+  - id: rebase_in_progress
+    severity: high
+  - id: cherry_pick_in_progress
+    severity: medium
+  - id: conflicts_present
+    severity: high
+  - id: upstream_behind
+    severity: medium
+  - id: upstream_ahead_unpushed
+    severity: low
+
+output_contract:
+  required_fields:
+    - status
+    - repo_path
+    - branch
+    - upstream
+    - ahead_behind
+    - in_progress
+    - counts
+    - files
+    - risks
+    - next_actions
+    - summary
+  status_enum: [not_repo, clean, dirty, conflicted]
+  ahead_behind_fields: [ahead, behind]
+  in_progress_fields: [merge, rebase, cherry_pick, bisect, detached_head]
+  counts_fields: [staged, unstaged, untracked, conflicted, total]
+  files_fields: [staged, unstaged, untracked, conflicted]
+  risk_fields: [id, severity, evidence]
+  severity_enum: [low, medium, high]
+  next_action_fields: [id, priority, action, reason]
+  priority_enum: [p0, p1, p2]

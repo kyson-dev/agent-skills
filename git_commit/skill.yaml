@@ -1,0 +1,103 @@
+name: git.commit
+version: 1.0.0
+status: experimental
+skill_type: executable
+
+description: >
+  Smart git commit skill with intent-based diff analysis and chunked commits.
+  Analyzes all pending changes, groups them by semantic intent, generates
+  Conventional Commits messages, and executes partial commits per group.
+
+owner: kyson
+side_effects: git_write
+default_mode: full
+
+inputs:
+  mode:
+    type: string
+    required: false
+    default: full
+    enum: [plan, full]
+    description: >
+      plan: analyze and output commit plan only, no git mutations.
+      full: analyze, plan, then execute all commits.
+  language:
+    type: string
+    required: false
+    default: en
+    enum: [en, zh]
+    description: "Language for commit message subject and body."
+  max_groups:
+    type: integer
+    required: false
+    default: 8
+    description: "Maximum number of commit groups to produce."
+  scope_override:
+    type: string
+    required: false
+    default: ""
+    description: "If set, force all commits to use this scope."
+  include_untracked:
+    type: boolean
+    required: false
+    default: true
+    description: "Whether to include untracked files in analysis."
+
+outputs:
+  commit_result:
+    type: object
+
+config:
+  # Conventional Commits
+  allowed_types:
+    - feat
+    - fix
+    - docs
+    - style
+    - refactor
+    - perf
+    - test
+    - build
+    - ci
+    - chore
+    - revert
+  subject_max_length: 72
+  body_wrap_length: 80
+  message_regex: "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\\([a-z0-9._\\-]+\\))?(!)?: .{1,72}$"
+
+  # Grouping
+  grouping_strategy: semantic
+  grouping_signals:
+    - directory_proximity
+    - import_dependency
+    - change_type_affinity
+    - shared_purpose
+  min_files_for_split: 2
+
+  # Safety
+  max_hook_retries: 2
+  reset_staging_before_each_chunk: true
+  require_clean_worktree_after: true
+
+  # Diff limits
+  max_diff_lines_per_file: 500
+  max_total_diff_lines: 3000
+  truncation_strategy: head_tail
+
+verdict_rules:
+  success:
+    all_chunks_committed: true
+  partial:
+    some_chunks_failed: true
+  empty:
+    no_changes_detected: true
+
+output_contract:
+  required_fields:
+    - status
+    - plan
+    - executed_commits
+    - summary
+  status_enum: [success, partial, empty, plan_only, error]
+  plan_fields: [group_id, files, type, scope, subject, body, rationale]
+  commit_fields: [group_id, sha, message, files_committed, hook_retries]
