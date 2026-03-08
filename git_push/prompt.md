@@ -19,7 +19,9 @@ Do not redefine input contracts in this file.
 
 1. **Repository Check**: Run `git rev-parse --is-inside-work-tree`.
    - If it fails, return `status: not_repo` immediately.
-2. **Connectivity Pre-check**: Run `git ls-remote --exit-code --get-url <remote>`.
+2. **Remote Existence Check**: Run `git remote`.
+   - If the requested `<remote>` is not in the list, return `status: remote_not_found`.
+3. **Connectivity Pre-check**: Run `git ls-remote --exit-code --get-url <remote>`.
    - If output contains `Permission denied`, return `status: auth_error`.
    - If output contains `Could not resolve host`, return `status: network_error`.
 

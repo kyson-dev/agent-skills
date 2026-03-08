@@ -30,12 +30,13 @@ Do not redefine input contracts in this file.
    - branch and upstream line
    - ahead/behind counts
    - file entries for staged, unstaged, untracked, conflicted buckets
-2. If `config.detect_in_progress_states` is true, detect:
+2. **Remote Detection**: Run `git remote -v` and parse unique remote names and URLs.
+3. If `config.detect_in_progress_states` is true, detect:
    - merge in progress (`MERGE_HEAD`)
    - rebase in progress (`rebase-merge` or `rebase-apply`)
    - cherry-pick in progress (`CHERRY_PICK_HEAD`)
    - bisect in progress (`BISECT_LOG`)
-3. Detect detached head with `git symbolic-ref -q --short HEAD`.
+4. Detect detached head with `git symbolic-ref -q --short HEAD`.
 
 ### Step 3: Normalize and Classify
 
@@ -45,7 +46,9 @@ Do not redefine input contracts in this file.
    - if `mode=brief`, cap further with `config.brief_mode_bucket_cap`
    - **Summary Mode Logic**: If the number of files in any bucket exceeds its cap, do NOT list all files. Instead, list the first 10 files and replace the remaining list with a single entry like `... (and 142 more)`. This prevents context overflow.
 3. Compute `status` using `status_rules` in `skill.yaml`.
-4. Build `risks` from `risk_rules` based on detected conditions.
+4. Build `risks` from `risk_rules` based on detected conditions. 
+   - If `remotes` is empty, add a `no_remotes` risk.
+5. Build `remotes` list from parsed remote data.
 
 ### Step 4: Build Next Actions
 

@@ -22,7 +22,7 @@ config:
   require_clean_worktree: false
 
 output_contract:
-  status: "success | up_to_date | rejected_needs_pull | rejected_protected | auth_error | network_error | not_repo | timeout | error"
+  status: "success | up_to_date | rejected_needs_pull | rejected_protected | auth_error | network_error | remote_not_found | not_repo | timeout | error"
   branch: string
   pushed_commits: number
   remote_url: string

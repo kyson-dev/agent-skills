@@ -67,6 +67,8 @@ risk_rules:
     severity: medium
   - id: upstream_ahead_unpushed
     severity: low
+  - id: no_remotes
+    severity: low
 
 output_contract:
   required_fields:
@@ -78,6 +80,7 @@ output_contract:
     - in_progress
     - counts
     - files
+    - remotes
     - risks
     - next_actions
     - summary
