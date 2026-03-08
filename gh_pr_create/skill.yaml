@@ -1,0 +1,37 @@
+name: gh_pr_create
+skill_type: executable
+description: Atomic GitHub PR creator with automatic body synthesis from commits and safety pre-flights.
+
+inputs:
+  base:
+    type: string
+    default: "main"
+    description: "The branch you want your changes pulled into."
+  title:
+    type: string
+    description: "PR title. If empty, uses the last commit subject."
+  body:
+    type: string
+    description: "PR description. If empty, auto-summarizes commits."
+  draft:
+    type: boolean
+    default: false
+    description: "Whether to create the PR as a draft."
+  maintainer_can_modify:
+    type: boolean
+    default: true
+    description: "Whether maintainers can modify the pull request."
+
+config:
+  require_pushed_state: true
+  auto_generate_body: true
+  max_commits_to_summarize: 10
+
+output_contract:
+  status: "success | not_pushed | conflict | already_exists | error"
+  pr_number: number
+  html_url: string
+  diff_url: string
+  base_branch: string
+  head_branch: string
+  summary: string
