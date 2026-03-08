@@ -44,22 +44,23 @@ You MUST explicitly calculate the **Effective Configuration** before any other s
 2. **Upstream Status**: Run `git status --porcelain=v2 --branch` and parse:
    - `branch.oid`: local HEAD SHA
    - `branch.head`: local branch name
-   - `branch.upstream`: the tracked remote branch
+   - `branch.upstream`: the tracked remote branch (if any)
    - `branch.ab`: ahead and behind counts (e.g. `+3 -0`)
-3. **Tracking Check**: Determine if the current branch has a tracking relationship.
+3. **Target Analysis**: Extract the remote branch name from `branch.upstream` if it exists.
 
 ### Phase 2: Safety Gate (Business Logic Interception)
 
 1. **Up-to-Date Check**: If `ahead == 0`, return `status: up_to_date` and stop.
 2. **Needs Pull Check**: If `behind > 0` AND `allow_force` is false, return
    `status: rejected_needs_pull` and suggest `pull --rebase`.
-3. **Protected Branch Protection**: 
-   - **Hard Block (Force Push)**: If current branch is in `config.protected_branches`
-     AND `allow_force` is true, return `status: rejected_protected` immediately.
-     NEVER allow force pushing to protected branches.
-   - **Soft Block (Direct Push Policy)**: If current branch is in `config.protected_branches`
-     AND `allow_force` is false AND `config.allow_direct_push_to_protected` is false,
-     return `status: policy_violation` and suggest creating a Pull Request.
+3. **Multi-layer Protected Branch Protection**: 
+   - **Local Head Protection**: If current local branch is in `config.protected_branches`.
+   - **Upstream Target Protection**: If the remote branch name (extracted from `branch.upstream`) is in `config.protected_branches`.
+   - **Mismatched Tracking Detection**: Check if `branch.head` != remote branch name (ignoring the remote name part like 'origin/').
+   - **Action Logic**: 
+     - If Local Head OR Upstream Target is protected AND `allow_force` is true -> `status: rejected_protected` (Hard Block).
+     - If Local Head OR Upstream Target is protected AND `allow_force` is false AND `config.allow_direct_push_to_protected` is false -> `status: policy_violation` (Suggest PR).
+     - If mismatched tracking is detected (e.g., `feature` tracking `origin/main`), even if not protected, add a mandatory `risk: mismatched_upstream` and advise using `git push -u <remote> <branch>` to create a same-named feature branch on remote.
 
 ### Phase 3: Command Construction
 
@@ -82,7 +83,7 @@ You MUST explicitly calculate the **Effective Configuration** before any other s
 1. Build the final JSON object per `output_contract` in `skill.yaml`.
 2. Include `pushed_commits` count (from Phase 1 `ahead` count).
 3. Include `remote_url` (from `git remote get-url <remote>`).
-4. If pushing to a protected branch, add a `risk` warning even if successful.
+4. If local branch or upstream target is protected, add a `risk` warning even if successful.
 
 ## OUTPUT
 

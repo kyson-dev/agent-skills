@@ -69,10 +69,8 @@ risk_rules:
     severity: medium
   - id: conflicts_present
     severity: high
-  - id: upstream_behind
-    severity: medium
-  - id: upstream_ahead_unpushed
-    severity: low
+  - id: mismatched_upstream
+    severity: high
   - id: no_remotes
     severity: low
   - id: missing_gitignore

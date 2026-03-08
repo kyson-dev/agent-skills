@@ -45,13 +45,17 @@ You MUST explicitly calculate the **Effective Configuration** before any other s
    - `branch.head`: local branch name
    - `branch.upstream`: tracked remote branch (if any)
    - `branch.ab`: ahead and behind counts (e.g., `+3 -1`)
-3. **Remote Detection**: Run `git remote -v` and parse unique remote names and URLs.
-4. If `config.detect_in_progress_states` is true, detect:
+3. **Tracking Comparison**:
+   - Extract the remote branch name part from `branch.upstream` (e.g. from `origin/feature` extract `feature`).
+   - If `branch.upstream` exists AND `branch.head` != remote branch name:
+     Mark this as a **mismatched_upstream** condition.
+4. **Remote Detection**: Run `git remote -v` and parse unique remote names and URLs.
+5. If `config.detect_in_progress_states` is true, detect:
    - merge in progress (`MERGE_HEAD`)
    - rebase in progress (`rebase-merge` or `rebase-apply`)
    - cherry-pick in progress (`CHERRY_PICK_HEAD`)
    - bisect in progress (`BISECT_LOG`)
-5. Detect detached head with `git symbolic-ref -q --short HEAD`.
+6. Detect detached head with `git symbolic-ref -q --short HEAD`.
 
 ### Step 2.5: Hygiene & Security Scan
 
@@ -66,7 +70,11 @@ You MUST explicitly calculate the **Effective Configuration** before any other s
 
 1. **Counts**: Build counts from parsed porcelain buckets. Apply caps and Summary Mode logic.
 2. **Status**: Compute `status` using `status_rules` in `skill.yaml`.
-3. **Risks**: Build `risks` array based on detected conditions (A/B counts, hygiene, security, remotes).
+3. **Risks**: Build `risks` array:
+   - If **mismatched_upstream** was detected in Step 2, add `mismatched_upstream` risk.
+   - **MANDATE**: Never list ahead/behind counts as risks. They are sync states, not hygiene issues.
+   - Include hygiene and security risks from Step 2.5.
+   - If `remotes` is empty, add a `no_remotes` risk.
 4. **Remotes**: Build `remotes` list from parsed remote data.
 
 ### Step 4: Build Next Actions (Prioritized)
@@ -74,13 +82,15 @@ You MUST explicitly calculate the **Effective Configuration** before any other s
 Generate prioritized `next_actions`:
 - **p0 (Security/Critical)**: 
   - If secrets detected: "Remove secrets and reset staged files."
-  - If behind upstream: "Run git pull --rebase to synchronize."
+  - If **mismatched_upstream** exists: "Run git push -u <remote> <head> to establish a same-named tracking relationship."
+  - If behind upstream (and matched): "Run git pull --rebase to synchronize."
   - If conflicts exist: "Resolve conflicts before proceeding."
 - **p1 (Process/Hygine)**:
   - If status is `dirty`: "Run git_commit to save changes."
-  - If `ahead > 0`: "Run git_push to synchronize local commits."
+  - If ahead > 0 (and matched): "Run git_push to synchronize local commits."
   - If `.gitignore` missing or sensitive files exposed: "Update .gitignore."
 - **p2 (Sync/Cleanup)**:
+  - If no upstream: "Run git_push -u <remote> <branch> to backup your code to remote."
   - If no remotes: "Add a remote repository using git_remote."
   - If clean and synchronized: "No actions needed."
 
