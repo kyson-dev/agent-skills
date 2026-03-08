@@ -39,8 +39,13 @@ Do not redefine input contracts in this file.
 1. **Up-to-Date Check**: If `ahead == 0`, return `status: up_to_date` and stop.
 2. **Needs Pull Check**: If `behind > 0` AND `allow_force` is false, return
    `status: rejected_needs_pull` and suggest `pull --rebase`.
-3. **Protected Branch Protection**: If current branch is in `config.protected_branches`
-   AND `allow_force` is true, return `status: rejected_protected` immediately.
+3. **Protected Branch Protection**: 
+   - **Hard Block (Force Push)**: If current branch is in `config.protected_branches`
+     AND `allow_force` is true, return `status: rejected_protected` immediately.
+     NEVER allow force pushing to protected branches.
+   - **Soft Block (Direct Push Policy)**: If current branch is in `config.protected_branches`
+     AND `allow_force` is false AND `config.allow_direct_push_to_protected` is false,
+     return `status: policy_violation` and suggest creating a Pull Request.
 
 ### Phase 3: Command Construction
 
@@ -63,6 +68,7 @@ Do not redefine input contracts in this file.
 1. Build the final JSON object per `output_contract` in `skill.yaml`.
 2. Include `pushed_commits` count (from Phase 1 `ahead` count).
 3. Include `remote_url` (from `git remote get-url <remote>`).
+4. If pushing to a protected branch, add a `risk` warning even if successful.
 
 ## OUTPUT
 
