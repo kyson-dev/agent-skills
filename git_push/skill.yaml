@@ -1,0 +1,30 @@
+name: git_push
+skill_type: executable
+description: Atomic git push with pre-flight safety gates, connectivity checks, and protected branch rules.
+
+inputs:
+  remote:
+    type: string
+    default: "origin"
+    description: "The remote repository to push to."
+  allow_force:
+    type: boolean
+    default: false
+    description: "If true, uses --force-with-lease. NEVER use raw --force. Automatically blocked on protected branches."
+  auto_setup_upstream:
+    type: boolean
+    default: true
+    description: "Automatically run 'git push -u <remote> <branch>' if no upstream exists."
+
+config:
+  protected_branches: ["main", "master", "production", "prod"]
+  timeout_seconds: 30
+  require_clean_worktree: false
+
+output_contract:
+  status: "success | up_to_date | rejected_needs_pull | rejected_protected | auth_error | network_error | not_repo | timeout | error"
+  branch: string
+  pushed_commits: number
+  remote_url: string
+  summary: string
+  risks: array
