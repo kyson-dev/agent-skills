@@ -3,6 +3,10 @@ skill_type: executable
 description: Atomic GitHub PR creator with automatic body synthesis from commits and safety pre-flights.
 
 inputs:
+  remote:
+    type: string
+    default: "origin"
+    description: "The name of the remote to use for repository identity."
   base:
     type: string
     default: "main"
@@ -23,9 +27,12 @@ inputs:
     description: "Whether maintainers can modify the pull request."
 
 config:
+  # Debug switch: When true, include the merged configuration in output.
+  debug_effective_config: false
   require_pushed_state: true
   auto_generate_body: true
   max_commits_to_summarize: 10
+  timeout_seconds: 30
 
 output_contract:
   status: "success | not_pushed | conflict | already_exists | error"
@@ -35,3 +42,4 @@ output_contract:
   base_branch: string
   head_branch: string
   summary: string
+  debug_fields: [effective_config]

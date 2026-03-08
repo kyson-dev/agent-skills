@@ -40,11 +40,11 @@ Typical triggers:
 ### Add origin
 ```
 Add remote origin at git@github.com:user/repo.git.
-→ Agent runs git_remote with action=add, name=origin, url=git@github.com:user/repo.git
+→ Agent runs git_remote with action=add, remote=origin, url=git@github.com:user/repo.git
 ```
 
 ### Set new URL
 ```
 Change origin URL to https://github.com/user/repo.git.
-→ Agent runs git_remote with action=set_url, name=origin, url=https://github.com/user/repo.git
+→ Agent runs git_remote with action=set_url, remote=origin, url=https://github.com/user/repo.git
 ```

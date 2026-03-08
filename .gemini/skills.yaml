@@ -1,0 +1,9 @@
+
+git_commit:
+  protected_branches: ["main", "master"]
+  # Policy toggle: Whether to allow commits to protected branches.
+  allow_commit_to_protected: false
+  
+git_push:
+  protected_branches: ["main", "master"]
+  allow_direct_push_to_protected: false

@@ -17,6 +17,8 @@ inputs:
     description: "Automatically run 'git push -u <remote> <branch>' if no upstream exists."
 
 config:
+  # Debug switch: When true, include the merged configuration in output.
+  debug_effective_config: false
   protected_branches: ["main", "master", "production", "prod"]
   # Policy toggle: Whether to allow regular (non-force) pushes to protected branches.
   allow_direct_push_to_protected: true
@@ -30,3 +32,4 @@ output_contract:
   remote_url: string
   summary: string
   risks: array
+  debug_fields: [effective_config]

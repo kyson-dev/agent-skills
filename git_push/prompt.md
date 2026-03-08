@@ -5,8 +5,9 @@ pre-flight safety gates to prevent destructive operations.
 
 ## SOURCE OF TRUTH
 
-Policy/config truth comes only from `skill.yaml` in this directory.
-If any conflict exists, `skill.yaml` wins.
+Policy/config truth comes from `skill.yaml` in this directory and is overridden
+by project-level `.gemini/skills.yaml`. 
+**Mandate**: Effectively merged configuration MUST override all internal default strings and logic.
 
 ## INPUTS
 
@@ -14,6 +15,18 @@ Inputs are injected by runtime from `skill.yaml.inputs`.
 Do not redefine input contracts in this file.
 
 ## HOW TO EXECUTE
+
+### Phase 0.1: Universal Config Discovery (STRICT)
+
+You MUST explicitly calculate the **Effective Configuration** before any other step. Follow this deterministic merge algorithm for EVERY field:
+
+1. **START** with `skill.yaml` as the base.
+2. **OVERRIDE** with values from `[REPO_ROOT]/.gemini/skills.yaml` under the `git_push:` key (if file and key exist).
+3. **OVERRIDE** with values provided in the current **User Input**.
+
+**Verification Step**: If a conflict occurs, the higher-numbered layer above always wins. You are FORBIDDEN from using a lower-layer value if a higher-layer one exists.
+
+**Debug Output**: If `config.debug_effective_config` is true, you MUST include an `effective_config` object in the JSON output containing the **ENTIRE** final resolved configuration (all keys and values).
 
 ### Phase 0: Base Environment & Connectivity
 
@@ -30,8 +43,9 @@ Do not redefine input contracts in this file.
 1. **Current Branch**: Run `git branch --show-current`.
 2. **Upstream Status**: Run `git status --porcelain=v2 --branch` and parse:
    - `branch.oid`: local HEAD SHA
-   - `branch.ab`: ahead and behind counts (e.g. `+3 -0`)
+   - `branch.head`: local branch name
    - `branch.upstream`: the tracked remote branch
+   - `branch.ab`: ahead and behind counts (e.g. `+3 -0`)
 3. **Tracking Check**: Determine if the current branch has a tracking relationship.
 
 ### Phase 2: Safety Gate (Business Logic Interception)

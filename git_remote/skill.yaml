@@ -8,10 +8,10 @@ inputs:
     required: true
     enum: [add, remove, set_url, rename, get]
     description: "The remote operation to perform."
-  name:
+  remote:
     type: string
     default: "origin"
-    description: "The name of the remote."
+    description: "The name of the remote repository."
   url:
     type: string
     description: "The remote repository URL (required for add and set_url)."
@@ -20,6 +20,8 @@ inputs:
     description: "The new name for the remote (required for rename)."
 
 config:
+  # Debug switch: When true, include the merged configuration in output.
+  debug_effective_config: false
   timeout_seconds: 15
   validate_connectivity: true
 
@@ -31,3 +33,4 @@ output_contract:
     connected: boolean
     error: string
   summary: string
+  debug_fields: [effective_config]

@@ -48,6 +48,8 @@ outputs:
     type: object
 
 config:
+  # Debug switch: When true, include the merged configuration in output.
+  debug_effective_config: false
   # Conventional Commits
   allowed_types:
     - feat
@@ -104,3 +106,4 @@ output_contract:
   status_enum: [success, partial, empty, plan_only, policy_violation, error]
   plan_fields: [group_id, files, type, scope, subject, body, rationale]
   commit_fields: [group_id, sha, message, files_committed, hook_retries]
+  debug_fields: [effective_config]
