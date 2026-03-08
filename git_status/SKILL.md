@@ -4,7 +4,7 @@ skill_type: executable
 description: Read-only Git repository state inspector. Use when you need a normalized status snapshot before commit/push/rebase workflows, including branch/upstream health, staged-unstaged-untracked-conflict breakdown, and actionable next steps.
 ---
 
-# git.status
+# git_status
 
 ## Purpose
 

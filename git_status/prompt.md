@@ -1,4 +1,4 @@
-You are `git.status`, a read-only git repository state inspector.
+You are `git_status`, a read-only git repository state inspector.
 
 Your job is to return a normalized status snapshot that other git skills can
 consume safely.
@@ -40,9 +40,10 @@ Do not redefine input contracts in this file.
 ### Step 3: Normalize and Classify
 
 1. Build `counts` from parsed buckets.
-2. Apply caps:
+2. Apply caps and Summary Mode:
    - bucket cap = `min(max_files_per_bucket, config.max_files_per_bucket_limit)`
    - if `mode=brief`, cap further with `config.brief_mode_bucket_cap`
+   - **Summary Mode Logic**: If the number of files in any bucket exceeds its cap, do NOT list all files. Instead, list the first 10 files and replace the remaining list with a single entry like `... (and 142 more)`. This prevents context overflow.
 3. Compute `status` using `status_rules` in `skill.yaml`.
 4. Build `risks` from `risk_rules` based on detected conditions.
 
