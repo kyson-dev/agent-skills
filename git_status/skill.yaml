@@ -5,8 +5,8 @@ skill_type: executable
 
 description: >
   Read-only git repository state inspector. Produces a normalized snapshot
-  of branch/upstream state, file buckets, in-progress operations, and
-  prioritized next actions.
+  of branch/upstream state, file buckets, in-progress operations, prioritized 
+  next actions, and hygiene/security pre-checks (.gitignore, secrets).
 
 owner: kyson
 side_effects: none
@@ -41,6 +41,10 @@ config:
   brief_mode_bucket_cap: 20
   detect_in_progress_states: true
   include_ignored_files: false
+  # Patterns for hygiene checks (sensitive files that should be ignored)
+  sensitive_patterns: [".env", "*.pem", "id_rsa", ".DS_Store", "node_modules", "venv", ".python-version"]
+  # Patterns for security checks (secret patterns in staged changes)
+  secret_patterns: ["sk-[a-zA-Z0-9]{20,}", "ghp_[a-zA-Z0-9]{20,}", "AIza[a-zA-Z0-9_\\-]{35}", "xox[pb]-[0-9]{12}-[a-zA-Z0-9]{24}"]
 
 status_rules:
   not_repo:
@@ -69,6 +73,12 @@ risk_rules:
     severity: low
   - id: no_remotes
     severity: low
+  - id: missing_gitignore
+    severity: medium
+  - id: sensitive_files_exposed
+    severity: high
+  - id: potential_secrets_leak
+    severity: critical
 
 output_contract:
   required_fields:
@@ -90,6 +100,6 @@ output_contract:
   counts_fields: [staged, unstaged, untracked, conflicted, total]
   files_fields: [staged, unstaged, untracked, conflicted]
   risk_fields: [id, severity, evidence]
-  severity_enum: [low, medium, high]
+  severity_enum: [low, medium, high, critical]
   next_action_fields: [id, priority, action, reason]
   priority_enum: [p0, p1, p2]
