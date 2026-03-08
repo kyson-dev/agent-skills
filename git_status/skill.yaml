@@ -43,8 +43,6 @@ config:
   brief_mode_bucket_cap: 20
   detect_in_progress_states: true
   include_ignored_files: false
-  # Branch role configuration
-  protected_branches: ["main", "master", "production", "prod"]
   # Patterns for hygiene checks
   sensitive_patterns: [".env", "*.pem", "id_rsa", ".DS_Store", "node_modules", "venv", ".python-version"]
   # Patterns for security checks
@@ -83,15 +81,12 @@ risk_rules:
     severity: high
   - id: potential_secrets_leak
     severity: critical
-  - id: work_on_protected_branch
-    severity: low
 
 output_contract:
   required_fields:
     - status
     - repo_path
     - branch
-    - is_protected
     - upstream
     - ahead_behind
     - in_progress

@@ -65,11 +65,9 @@ You MUST explicitly calculate the **Effective Configuration** before any other s
 ### Step 3: Normalize and Classify
 
 1. **Counts**: Build counts from parsed porcelain buckets. Apply caps and Summary Mode logic.
-2. **Branch Role**: Determine `is_protected` by checking if the current branch is in `config.protected_branches`.
-   - If `is_protected` is true, add `work_on_protected_branch` risk.
-3. **Status**: Compute `status` using `status_rules` in `skill.yaml`.
-4. **Risks**: Build `risks` array based on detected conditions (A/B counts, hygiene, security, remotes).
-5. **Remotes**: Build `remotes` list from parsed remote data.
+2. **Status**: Compute `status` using `status_rules` in `skill.yaml`.
+3. **Risks**: Build `risks` array based on detected conditions (A/B counts, hygiene, security, remotes).
+4. **Remotes**: Build `remotes` list from parsed remote data.
 
 ### Step 4: Build Next Actions (Prioritized)
 
@@ -79,8 +77,7 @@ Generate prioritized `next_actions`:
   - If behind upstream: "Run git pull --rebase to synchronize."
   - If conflicts exist: "Resolve conflicts before proceeding."
 - **p1 (Process/Hygine)**:
-  - If `is_protected` is true AND status is `dirty`: "Create a feature branch (git switch -c <name>) to follow PR workflow."
-  - If status is `dirty` (non-protected): "Run git_commit to save changes."
+  - If status is `dirty`: "Run git_commit to save changes."
   - If `ahead > 0`: "Run git_push to synchronize local commits."
   - If `.gitignore` missing or sensitive files exposed: "Update .gitignore."
 - **p2 (Sync/Cleanup)**:
