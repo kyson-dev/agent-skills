@@ -5,8 +5,8 @@ skill_type: executable
 
 description: >
   Read-only git repository state inspector. Produces a normalized snapshot
-  of branch/upstream state, file buckets, in-progress operations, prioritized 
-  next actions, and hygiene/security pre-checks (.gitignore, secrets).
+  of current branch state (ahead/behind), file buckets, in-progress operations, 
+  prioritized next actions, and hygiene/security pre-checks.
 
 owner: kyson
 side_effects: none
@@ -41,9 +41,11 @@ config:
   brief_mode_bucket_cap: 20
   detect_in_progress_states: true
   include_ignored_files: false
-  # Patterns for hygiene checks (sensitive files that should be ignored)
+  # Branch role configuration
+  protected_branches: ["main", "master", "production", "prod"]
+  # Patterns for hygiene checks
   sensitive_patterns: [".env", "*.pem", "id_rsa", ".DS_Store", "node_modules", "venv", ".python-version"]
-  # Patterns for security checks (secret patterns in staged changes)
+  # Patterns for security checks
   secret_patterns: ["sk-[a-zA-Z0-9]{20,}", "ghp_[a-zA-Z0-9]{20,}", "AIza[a-zA-Z0-9_\\-]{35}", "xox[pb]-[0-9]{12}-[a-zA-Z0-9]{24}"]
 
 status_rules:
@@ -79,12 +81,15 @@ risk_rules:
     severity: high
   - id: potential_secrets_leak
     severity: critical
+  - id: work_on_protected_branch
+    severity: low
 
 output_contract:
   required_fields:
     - status
     - repo_path
     - branch
+    - is_protected
     - upstream
     - ahead_behind
     - in_progress

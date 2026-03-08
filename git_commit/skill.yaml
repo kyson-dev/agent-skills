@@ -74,7 +74,10 @@ config:
     - shared_purpose
   min_files_for_split: 2
 
-  # Safety
+  # Safety & Policy
+  protected_branches: ["main", "master", "production", "prod"]
+  # Policy toggle: Whether to allow direct commits to protected branches.
+  allow_commit_to_protected: true
   max_hook_retries: 2
   reset_staging_before_each_chunk: true
   require_clean_worktree_after: true
@@ -98,6 +101,6 @@ output_contract:
     - plan
     - executed_commits
     - summary
-  status_enum: [success, partial, empty, plan_only, error]
+  status_enum: [success, partial, empty, plan_only, policy_violation, error]
   plan_fields: [group_id, files, type, scope, subject, body, rationale]
   commit_fields: [group_id, sha, message, files_committed, hook_retries]

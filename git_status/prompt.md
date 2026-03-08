@@ -26,17 +26,19 @@ Do not redefine input contracts in this file.
 
 ### Step 2: Collect Raw State (Read-Only)
 
-1. Run `git status --porcelain=1 -b` and parse:
-   - branch and upstream line
-   - ahead/behind counts
-   - file entries for staged, unstaged, untracked, conflicted buckets
-2. **Remote Detection**: Run `git remote -v` and parse unique remote names and URLs.
-3. If `config.detect_in_progress_states` is true, detect:
+1. Run `git branch --show-current` to identify the current branch.
+2. Run `git status --porcelain=v2 --branch` and parse for the **current branch only**:
+   - `branch.oid`: local HEAD SHA
+   - `branch.head`: local branch name
+   - `branch.upstream`: tracked remote branch (if any)
+   - `branch.ab`: ahead and behind counts (e.g., `+3 -1`)
+3. **Remote Detection**: Run `git remote -v` and parse unique remote names and URLs.
+4. If `config.detect_in_progress_states` is true, detect:
    - merge in progress (`MERGE_HEAD`)
    - rebase in progress (`rebase-merge` or `rebase-apply`)
    - cherry-pick in progress (`CHERRY_PICK_HEAD`)
    - bisect in progress (`BISECT_LOG`)
-4. Detect detached head with `git symbolic-ref -q --short HEAD`.
+5. Detect detached head with `git symbolic-ref -q --short HEAD`.
 
 ### Step 2.5: Hygiene & Security Scan
 
@@ -49,27 +51,28 @@ Do not redefine input contracts in this file.
 
 ### Step 3: Normalize and Classify
 
-1. Build `counts` from parsed buckets.
-2. Apply caps and Summary Mode:
-   - bucket cap = `min(max_files_per_bucket, config.max_files_per_bucket_limit)`
-   - if `mode=brief`, cap further with `config.brief_mode_bucket_cap`
-   - **Summary Mode Logic**: If the number of files in any bucket exceeds its cap, do NOT list all files. Instead, list the first 10 files and replace the remaining list with a single entry like `... (and 142 more)`. This prevents context overflow.
-3. Compute `status` using `status_rules` in `skill.yaml`.
-4. Build `risks` from `risk_rules` based on detected conditions. 
-   - Include hygiene and security risks from Step 2.5.
-   - If `remotes` is empty, add a `no_remotes` risk.
-5. Build `remotes` list from parsed remote data.
+1. **Counts**: Build counts from parsed porcelain buckets. Apply caps and Summary Mode logic.
+2. **Branch Role**: Determine `is_protected` by checking if the current branch is in `config.protected_branches`.
+   - If `is_protected` is true, add `work_on_protected_branch` risk.
+3. **Status**: Compute `status` using `status_rules` in `skill.yaml`.
+4. **Risks**: Build `risks` array based on detected conditions (A/B counts, hygiene, security, remotes).
+5. **Remotes**: Build `remotes` list from parsed remote data.
 
-### Step 4: Build Next Actions
+### Step 4: Build Next Actions (Prioritized)
 
 Generate prioritized `next_actions`:
-- `p0` resolve conflicts or continue/abort in-progress operations.
-- `p0` remove secrets and reset staged files if leak detected.
-- `p1` commit/stash when local changes exist.
-- `p1` pull/rebase when behind upstream.
-- `p1` update .gitignore if sensitive files exposed.
-- `p2` push when ahead upstream.
-- `p2` no-op when clean and synchronized.
+- **p0 (Security/Critical)**: 
+  - If secrets detected: "Remove secrets and reset staged files."
+  - If behind upstream: "Run git pull --rebase to synchronize."
+  - If conflicts exist: "Resolve conflicts before proceeding."
+- **p1 (Process/Hygine)**:
+  - If `is_protected` is true AND status is `dirty`: "Create a feature branch (git switch -c <name>) to follow PR workflow."
+  - If status is `dirty` (non-protected): "Run git_commit to save changes."
+  - If `ahead > 0`: "Run git_push to synchronize local commits."
+  - If `.gitignore` missing or sensitive files exposed: "Update .gitignore."
+- **p2 (Sync/Cleanup)**:
+  - If no remotes: "Add a remote repository using git_remote."
+  - If clean and synchronized: "No actions needed."
 
 ### Step 5: Return Output
 
