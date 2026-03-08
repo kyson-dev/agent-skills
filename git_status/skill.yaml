@@ -1,4 +1,4 @@
-name: git.status
+name: git_status
 version: 1.0.0
 status: experimental
 skill_type: executable

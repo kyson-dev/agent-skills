@@ -1,4 +1,4 @@
-name: review.skill.knowledge
+name: review_skill_knowledge
 version: 1.0.0
 status: experimental
 skill_type: executable

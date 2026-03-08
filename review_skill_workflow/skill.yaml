@@ -1,4 +1,4 @@
-name: review.skill.workflow
+name: review_skill_workflow
 version: 1.0.0
 status: experimental
 skill_type: orchestrator
@@ -50,23 +50,23 @@ config:
 
 pipeline:
   - id: definition
-    reviewer: review.skill.definition
+    reviewer: review_skill_definition
     decision_field: verdict
     stop_on: [reject, revise]
     output_as: definition_result
   - id: knowledge_content
-    reviewer: review.skill.knowledge
+    reviewer: review_skill_knowledge
     decision_field: verdict
     stop_on: [reject, revise]
     when_skill_type: knowledge
     output_as: knowledge_result
   - id: design
-    reviewer: review.skill.design
+    reviewer: review_skill_design
     decision_field: verdict
     stop_on: [reject, revise]
     output_as: design_result
   - id: tester
-    reviewer: review.skill.tester
+    reviewer: review_skill_tester
     decision_field: verdict
     stop_on: [reject, revise]
     output_as: tester_result

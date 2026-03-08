@@ -1,4 +1,4 @@
-name: review.skill.design
+name: review_skill_design
 version: 1.0.0
 status: experimental
 skill_type: executable

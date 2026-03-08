@@ -1,4 +1,4 @@
-name: review.skill.tester
+name: review_skill_tester
 version: 1.0.0
 status: experimental
 skill_type: executable

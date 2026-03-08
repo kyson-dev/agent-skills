@@ -1,4 +1,4 @@
-name: git.commit
+name: git_commit
 version: 1.0.0
 status: experimental
 skill_type: executable
