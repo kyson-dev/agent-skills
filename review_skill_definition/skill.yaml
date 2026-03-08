@@ -1,4 +1,4 @@
-name: review.skill.definition
+name: review_skill_definition
 version: 1.0.0
 status: experimental
 skill_type: executable
@@ -41,7 +41,7 @@ outputs:
     type: object
 
 config:
-  naming_pattern: "<domain>.<capability>[.<variant>]"
+  naming_pattern: "snake_case (must match directory name)"
   yaml_max_block_lines: 30
   yaml_max_nesting: 3
   required_identity_fields:

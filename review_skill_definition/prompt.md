@@ -92,7 +92,9 @@ must exist with at least `required_fields`.
 
 ### naming
 
-- Name not parseable by `config.naming_pattern`: -10
+- Name does not match the physical directory name: -10
+- Name not in snake_case: -5
+- Name mismatch between skill.yaml and SKILL.md frontmatter: -5
 
 ## OUTPUT
 
