@@ -1,10 +1,10 @@
 ---
-name: git.commit
+name: git_commit
 skill_type: executable
 description: Smart git commit with intent-based diff analysis and chunked partial commits.
 ---
 
-# git.commit
+# git_commit
 
 ## Purpose
 
@@ -42,20 +42,20 @@ Typical triggers:
 ### Plan only (review before committing)
 ```
 Please analyze my current changes and show the commit plan.
-→ Agent runs git.commit with mode=plan
+→ Agent runs git_commit with mode=plan
 → Returns grouped commit plan as JSON for human review
 ```
 
 ### Full auto-commit
 ```
 Commit all my changes with proper messages.
-→ Agent runs git.commit with mode=full
+→ Agent runs git_commit with mode=full
 → Analyzes, groups, and executes chunked commits automatically
 ```
 
 ### Chinese commit messages
 ```
 用中文帮我提交代码。
-→ Agent runs git.commit with language=zh
+→ Agent runs git_commit with language=zh
 → Generates Chinese subject lines and bodies
 ```

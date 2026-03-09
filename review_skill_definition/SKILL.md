@@ -1,10 +1,10 @@
 ---
-name: review.skill.definition
+name: review_skill_definition
 skill_type: executable
 description: Structured gatekeeper for reviewing new skills in the personal AI system.
 ---
 
-# review.skill.definition
+# review_skill_definition
 
 ## Purpose
 

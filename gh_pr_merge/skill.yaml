@@ -1,0 +1,47 @@
+name: gh_pr_merge
+version: 1.0.0
+status: experimental
+skill_type: executable
+
+description: >
+  Atomic PR merge executor. Performs the actual merge operation 
+  and handles post-merge local environment cleanup.
+
+owner: kyson
+side_effects: git_write, gh_write
+default_mode: squash
+
+inputs:
+  method:
+    type: string
+    required: false
+    default: squash
+    enum: [squash, rebase, merge]
+    description: "Merge strategy."
+  pr_number:
+    type: integer
+    required: false
+    description: "PR to merge. Defaults to current branch."
+  delete_branch:
+    type: boolean
+    required: false
+    default: true
+    description: "Delete local branch after successful merge."
+
+outputs:
+  merge_result:
+    type: object
+
+config:
+  sync_base_after_merge: true
+  delete_remote_branch: true
+
+output_contract:
+  required_fields:
+    - status
+    - pr_number
+    - method
+    - merged_sha
+    - cleanup_performed
+  status_enum: [success, already_merged, error]
+  cleanup_fields: [local_deleted, base_synced]

@@ -1,10 +1,10 @@
 ---
-name: review.skill.tester
+name: review_skill_tester
 skill_type: executable
 description: LLM-driven test generator and executor for skills.
 ---
 
-# review.skill.tester
+# review_skill_tester
 
 ## Purpose
 

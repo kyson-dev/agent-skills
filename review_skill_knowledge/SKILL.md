@@ -1,17 +1,17 @@
 ---
-name: review.skill.knowledge
+name: review_skill_knowledge
 skill_type: executable
 description: Content quality reviewer for knowledge-type skills.
 ---
 
-# review.skill.knowledge
+# review_skill_knowledge
 
 ## Purpose
 
 - Evaluate source authority, freshness strategy, and correctness.
 - Detect hardcoded volatile facts and scope drift.
 - Focus on content quality only; structural checks are handled by
-  review.skill.definition.
+  review_skill_definition.
 
 ## When to Use
 

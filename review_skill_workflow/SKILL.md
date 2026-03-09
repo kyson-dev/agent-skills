@@ -1,10 +1,10 @@
 ---
-name: review.skill.workflow
+name: review_skill_workflow
 skill_type: orchestrator
 description: Orchestrator workflow for reviewing a new skill. Runs definition → knowledge (conditional) → design → tester in sequence.
 ---
 
-# review.skill.workflow
+# review_skill_workflow
 
 ## Purpose
 

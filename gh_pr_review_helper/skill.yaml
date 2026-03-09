@@ -1,0 +1,62 @@
+name: gh_pr_review_helper
+version: 1.0.0
+status: experimental
+skill_type: executable
+
+description: >
+  AI-powered PR assistant. Summarizes changes, generates fix suggestions 
+  for review comments, and produces user-facing changelogs.
+
+owner: kyson
+side_effects: none
+default_mode: summarize
+
+inputs:
+  mode:
+    type: string
+    required: false
+    default: summarize
+    enum: [summarize, fix_suggestion, gen_changelog]
+    description: "summarize: PR intentions; fix_suggestion: Review feedback; gen_changelog: Release notes."
+  pr_number:
+    type: integer
+    required: false
+    description: "PR to analyze. Defaults to current branch."
+  context_lines:
+    type: integer
+    required: false
+    default: 5
+    description: "Lines of code context to include for fix suggestions."
+
+outputs:
+  review_result:
+    type: object
+
+config:
+  # LLM Style & Depth
+  summary_style: engineering_focused
+  include_risk_analysis: true
+  
+  # Content Limits
+  max_diff_tokens: 4000
+  max_comments_to_process: 10
+  
+  # Support multi-file summarization strategy
+  use_layered_summary: true
+
+# Success/Failure indicators
+verdict_rules:
+  success:
+    content_generated: true
+  no_context:
+    missing_pr_or_diff: true
+  too_large:
+    diff_exceeds_context_window: true
+
+output_contract:
+  required_fields:
+    - mode
+    - content
+    - metadata
+  content_type: markdown
+  metadata_fields: [pr_number, files_analyzed, commits_analyzed, suggestions_count]
