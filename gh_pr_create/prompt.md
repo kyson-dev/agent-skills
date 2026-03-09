@@ -22,8 +22,16 @@ Your operational parameters are injected through three layers. You MUST derive t
 
 ### Phase 1: Metadata Synthesis
 
-1. **Title/Body**: Generate from commit history if not provided, adhering to `config.max_commits_to_summarize`.
-2. **Identity**: Extract repository owner and name from `git remote get-url <remote>`.
+1. **Title Synthesis**:
+   - If `title` input is empty: Analyze commit subjects between `base` and `HEAD`.
+   - If multiple types exist, use a high-level `feat` or `refactor` that best describes the intent.
+   - Force the result into **Conventional Commits** format (e.g., `feat(scope): summary`).
+2. **Body Synthesis**:
+   - If `body` input is empty AND `config.auto_generate_body` is true:
+   - **Section 1: Description**: Generate a 1-2 sentence overview of WHY this PR exists.
+   - **Section 2: Key Changes**: Group commits by type (feat, fix, etc.) using `config.allowed_types`. List up to `config.max_commits_to_summarize`.
+   - **Section 3: Impact & Risk**: Identify core logic changes (e.g. "updates configuration merging") and state their impact.
+3. **Identity**: Extract repository owner and name from `git remote get-url <remote>`.
 
 ### Phase 2: GitHub Execution
 

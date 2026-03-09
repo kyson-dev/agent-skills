@@ -13,10 +13,10 @@ inputs:
     description: "The branch you want your changes pulled into."
   title:
     type: string
-    description: "PR title. If empty, uses the last commit subject."
+    description: "PR title. If empty, uses the last commit subject or synthesizes one."
   body:
     type: string
-    description: "PR description. If empty, auto-summarizes commits."
+    description: "PR description. If empty, auto-summarizes commits into a structured format."
   draft:
     type: boolean
     default: false
@@ -31,8 +31,11 @@ config:
   debug_effective_config: false
   require_pushed_state: true
   auto_generate_body: true
-  max_commits_to_summarize: 10
+  max_commits_to_summarize: 15
   timeout_seconds: 30
+  # Conventional PR Standards
+  allowed_types: ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"]
+  body_sections: ["## Description", "## Key Changes", "## Impact & Risk"]
 
 output_contract:
   status: "success | not_pushed | conflict | already_exists | error"
