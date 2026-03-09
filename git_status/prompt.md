@@ -63,21 +63,21 @@ Your operational parameters are injected through three layers. You MUST derive t
    - If `remotes` is empty, add a `no_remotes` risk.
 4. **Remotes**: Build `remotes` list from parsed remote data.
 
-### Step 4: Build Next Actions (Prioritized)
+# Step 4: Build Next Actions (Prioritized)
 
 Generate prioritized `next_actions`:
 - **p0 (Security/Critical)**: 
-  - If secrets detected: "Remove secrets and reset staged files."
-  - If **mismatched_upstream** exists: "Run git push -u <remote> <head> to establish a same-named tracking relationship."
-  - If behind upstream (and matched): "Run git pull --rebase to synchronize."
+  - If secrets detected: "Remove secrets and restore staged files (**`git restore --staged .`**)."
+  - If **mismatched_upstream** exists: "Run **`git_push`** with `auto_setup_upstream: true` to establish a same-named tracking relationship."
+  - If behind upstream (and matched): "Run **`git pull --rebase`** to synchronize."
   - If conflicts exist: "Resolve conflicts before proceeding."
-- **p1 (Process/Hygine)**:
-  - If status is `dirty`: "Run git_commit to save changes."
-  - If ahead > 0 (and matched): "Run git_push to synchronize local commits."
-  - If `.gitignore` missing or sensitive files exposed: "Update .gitignore."
+- **p1 (Process/Hygiene)**:
+  - If status is `dirty`: "Run **`git_commit`** to save changes."
+  - If ahead > 0 (and matched): "Run **`git_push`** to synchronize local commits."
+  - If working on a protected branch: "Create a feature branch (**`git switch -c <name>`**) to follow PR workflow."
 - **p2 (Sync/Cleanup)**:
-  - If no upstream: "Run git_push -u <remote> <branch> to backup your code to remote."
-  - If no remotes: "Add a remote repository using git_remote."
+  - If no upstream: "Run **`git_push`** to backup your code to remote."
+  - If no remotes: "Add a remote repository using **`git_remote`**."
   - If clean and synchronized: "No actions needed."
 
 ### Step 5: Return Output
