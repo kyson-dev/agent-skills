@@ -1,0 +1,58 @@
+name: gh_pr_sync
+version: 1.0.0
+status: experimental
+skill_type: executable
+
+description: >
+  Synchronizes the current branch with its base branch (e.g., main).
+  Identifies the target branch from an active GitHub PR or falls back 
+  to 'main'. Supports rebase or merge strategies.
+
+owner: kyson
+side_effects: git_write
+default_mode: rebase
+
+inputs:
+  strategy:
+    type: string
+    required: false
+    default: rebase
+    enum: [rebase, merge]
+    description: "Rebase (clean history) or merge (sync commit)."
+  base_branch_override:
+    type: string
+    required: false
+    description: "Explicitly specify the base branch to sync against."
+  push:
+    type: boolean
+    required: false
+    default: true
+    description: "Push to remote after successful synchronization."
+
+config:
+  # Safety gates
+  require_clean_worktree: true
+  auto_abort_on_conflict: true
+  use_force_with_lease: true
+  
+  # Default fallback if no PR is found
+  default_fallback_base: "main"
+
+# Rules for success/failure
+verdict_rules:
+  success:
+    is_synced: true
+  already_up_to_date:
+    no_commits_to_sync: true
+  conflicted:
+    stopped_by_merge_conflicts: true
+
+output_contract:
+  required_fields:
+    - status
+    - strategy
+    - base_branch
+    - head_branch
+    - synced_commits
+    - pushed
+  status_enum: [success, already_up_to_date, conflicted, error, dirty_worktree]

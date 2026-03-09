@@ -1,0 +1,89 @@
+name: gh_pr_status
+version: 1.0.0
+status: experimental
+skill_type: executable
+
+description: >
+  GitHub Pull Request status inspector. Provides a high-fidelity snapshot 
+  of PR health, including CI/Checks, Reviewer approvals, mergeability, 
+  and logical conflicts with the base branch.
+
+owner: kyson
+side_effects: none
+default_mode: summary
+
+inputs:
+  pr_number:
+    type: integer
+    required: false
+    description: "The PR number to inspect. Defaults to the PR associated with the current branch."
+  detail_level:
+    type: string
+    required: false
+    default: summary
+    enum: [summary, full]
+    description: "summary: High-level health; full: Detailed check list and review comments."
+
+outputs:
+  status_result:
+    type: object
+
+config:
+  # Policies inferred from GitHub's real-time mergeStateStatus
+  require_passed_ci: true
+  ignore_optional_checks: true
+  check_unresolved_threads: true
+  
+  # Regex to identify critical CI jobs
+  critical_checks_pattern: "(build|test|security|lint)"
+  
+  # Data limits
+  max_review_comments: 20
+  max_checks_output: 50
+
+# Rules to determine the final 'verdict' based on GitHub's mergeStateStatus
+verdict_rules:
+  mergeable:
+    mergeStateStatus: CLEAN
+    is_draft: false
+  blocked:
+    mergeStateStatus: BLOCKED
+    or_is_draft: true
+  conflicted:
+    mergeable: CONFLICTING
+  behind:
+    mergeStateStatus: BEHIND
+  draft:
+    is_draft: true
+
+# Risk identification logic
+risk_rules:
+  - id: failed_critical_check
+    severity: high
+  - id: changes_requested
+    severity: high
+  - id: merge_conflicts
+    severity: critical
+  - id: unresolved_conversations
+    severity: medium
+  - id: outdated_branch
+    severity: medium
+  - id: draft_pr
+    severity: low
+
+output_contract:
+  required_fields:
+    - pr_number
+    - title
+    - state
+    - verdict
+    - base_branch
+    - head_branch
+    - checks_summary
+    - reviews_summary
+    - mergeable_status
+    - merge_state_status
+    - risks
+    - next_actions
+  status_enum: [open, closed, merged, draft]
+  verdict_enum: [mergeable, blocked, conflicted, behind, draft, loading_error]
