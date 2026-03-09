@@ -1,10 +1,10 @@
 ---
-name: review.skill.design
+name: review_skill_design
 skill_type: executable
 description: Design-level reviewer for skills. Evaluate whether a proposed skill is a good product/design for long-term use.
 ---
 
-# review.skill.design
+# review_skill_design
 
 ## Purpose
 

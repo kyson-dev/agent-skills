@@ -1,5 +1,5 @@
 ---
-name: git.status
+name: git_status
 skill_type: executable
 description: Read-only Git repository state inspector. Use when you need a normalized status snapshot before commit/push/rebase workflows, including branch/upstream health, staged-unstaged-untracked-conflict breakdown, and actionable next steps.
 ---
@@ -14,7 +14,7 @@ description: Read-only Git repository state inspector. Use when you need a norma
 
 ## When to Use
 
-Use this skill before any mutating git action (`git.commit`, `push`, `sync`,
+Use this skill before any mutating git action (`git_commit`, `push`, `sync`,
 rebase/merge continuation) or when diagnosing "what state is my repo in?".
 
 ## Source of Truth
