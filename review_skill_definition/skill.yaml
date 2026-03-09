@@ -46,11 +46,8 @@ config:
   yaml_max_nesting: 3
   required_identity_fields:
     - name
-    - version
-    - status
     - skill_type
     - description
-    - owner
     - side_effects
 
 rubric:
